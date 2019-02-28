@@ -2,7 +2,6 @@ import twitter_creds
 import tweepy
 import csv
 import time
-import pandas as pd
 import tweepy.streaming as StreamListener
 
 
@@ -25,8 +24,8 @@ def stream_tweets(api):
 
 
 def store_tweets(api):
-    tweets = api.search(q="giveaway follow OR win follow OR winner giveaway OR giveaway rt OR giveaway retweet",
-                        count=10)
+    tweets = api.search(q="giveaway follow OR win follow OR winner giveaway OR giveaway rt OR giveaway retweet "
+                          "AND -comment -tag", count=10)
     csvFile = open('test.csv', 'w+', newline='', encoding='utf-8')
     try:
         writer = csv.writer(csvFile)
@@ -70,6 +69,7 @@ def follow_user_retweet_like(api):
         # if user_mentions.id in tweets[0]:
         #     api.create_friendship(tweets[0].user_mentions.id)
     for tweet in tweets:
+        print(tweet.favorited)
         if tweet.retweeted_status.user.screen_name:
             print("Retweeter person: ", tweet.user.screen_name, " Followed: ",
                   tweet.retweeted_status.user.screen_name, " and Retweeted and Liked: ", tweet.text)
@@ -78,8 +78,13 @@ def follow_user_retweet_like(api):
             print("Original person: ", tweet.user.screen_name, " Followed: ",
                   tweet.user.screen_name, " and Retweeted and Liked: ", tweet.text)
             api.create_friendship(tweet.user.screen_name)
-        api.create_favorite(tweet.id)
-        tweet.retweet()
+        try:
+            if not tweet.favorited:
+                api.create_favorite(tweet.id)
+        except tweepy.error.TweepError:
+            continue
+        if not tweet.retweeted:
+            tweet.retweet()
     # except tweepy.TweepError:
     #     print("Rate Limit reached...")
     #     print("...")
@@ -89,7 +94,12 @@ def follow_user_retweet_like(api):
 if __name__ == '__main__':
 
     api = get_api()
-    store_tweets(api)
-    search_tweets(api)
-    follow_user_retweet_like(api)
+    i = 0
+    while i < 8:
+        follow_user_retweet_like(api)
+        i += 1
+        print("\n\n\n")
+        time.sleep(120 - time.time() % 120)
+
+
 
