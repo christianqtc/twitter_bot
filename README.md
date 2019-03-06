@@ -18,9 +18,9 @@ pip install tweepy
 
 Once you receive the credentials from Twitter you can create a file twitter_creds.py. 
 You can add the credentials in the format below.
-'''
+```
 ACCESS_TOKEN = "insert access token here"
 ACCESS_TOKEN_SECRET = "insert access token secret here"
 CONSUMER_KEY = "insert consumer key here"
 CONSUMER_SECRET = "insert consumer secret here"
-'''
+```
